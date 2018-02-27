@@ -13,6 +13,13 @@ import (
 
 // unit: min
 const defaultPullInterval = 2
+
+/* API
+{
+	"httpstatus": 200,
+	"data": ["monitor-router-", "test-"]
+}
+*/
 const defaultAPI = "http://www.ifeng.com"
 
 var tracefilter *Filter
@@ -28,26 +35,28 @@ func init() {
 	}
 }
 
+// Filter iFeng custom spanfilter
 type Filter struct {
 	Addr     string
 	services []string
-	Interval int
 	mu       sync.RWMutex
 }
 
+// Resp API data struct
 type Resp struct {
 	Status int      `json:"httpstatus"`
 	Data   []string `json:"data"`
 }
 
+// New Filter
 func New(addr string) *Filter {
 	r := &Filter{
-		Addr:     addr,
-		Interval: defaultPullInterval,
+		Addr: addr,
 	}
 	return r
 }
 
+// Update cache data
 func (r *Filter) Update() error {
 	var resp Resp
 	response, err := requests.Get(r.Addr)
@@ -68,6 +77,7 @@ func (r *Filter) Update() error {
 	return fmt.Errorf("get all ns failed: code %d", response.Status)
 }
 
+// Check span reported
 func Check(span *model.Span) bool {
 	tracefilter.mu.RLock()
 	services := tracefilter.services
