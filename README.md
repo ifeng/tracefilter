@@ -1,4 +1,4 @@
-# iFeng jeager custom span filter
+# iFeng jaeger custom span filter
 
 
 ## API Data struct 
