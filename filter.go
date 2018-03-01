@@ -28,12 +28,14 @@ func init() {
 	tracefilter = New(defaultAPI)
 	tracefilter.Update()
 	ticker := time.NewTicker(time.Duration(defaultPullInterval) * time.Minute)
-	for {
-		select {
-		case <-ticker.C:
-			tracefilter.Update()
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				tracefilter.Update()
+			}
 		}
-	}
+	}()
 }
 
 // Filter iFeng custom spanfilter
