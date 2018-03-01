@@ -17,15 +17,16 @@ const defaultPullInterval = 2
 /* API
 {
 	"httpstatus": 200,
-	"data": ["monitor-router-", "test-"]
+	"data": ["monitor-router-", "test-", "picus-"]
 }
 */
-const defaultAPI = "http://www.ifeng.com"
+const defaultAPI = "http://trace.test.com/static/service.json"
 
 var tracefilter *Filter
 
 func init() {
 	tracefilter = New(defaultAPI)
+	tracefilter.Update()
 	ticker := time.NewTicker(time.Duration(defaultPullInterval) * time.Minute)
 	for {
 		select {
@@ -84,8 +85,17 @@ func Check(span *model.Span) bool {
 	tracefilter.mu.RUnlock()
 	for _, s := range services {
 		if strings.HasPrefix(span.Process.ServiceName, s) {
-			return true
+			return checkTime(span)
 		}
+	}
+	return false
+}
+
+func checkTime(span *model.Span) bool {
+	stime := span.StartTime.Unix()
+	// From 2018-01-01 to 2118-01-01
+	if stime > 1514739661 && stime < 4670413261 {
+		return true
 	}
 	return false
 }
